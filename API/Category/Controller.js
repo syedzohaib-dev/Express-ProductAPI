@@ -4,7 +4,7 @@ require('dotenv').config()
 
 const getAllCategories = async (req, res) => {
     try {
-        await connect(process.env.MONGO_URL)
+        await connect(process.env.MONGO_URI)
 
         const allCategories = await Category.find()
 
@@ -23,25 +23,42 @@ const getAllCategories = async (req, res) => {
 }
 
 const getCategorybyID = async (req, res) => {
-    const { CategoryName, CategoryImage } = req.body
+    const { _id } = req.query
+    // const { CategoryName, CategoryImage } = req.body
 
-    if (!CategoryName || !CategoryImage) {
-        res.status(403).json({
-            message: "Missing Required Field"
-        })
+    // if (!CategoryName || !CategoryImage) {
+    //     res.status(403).json({
+    //         message: "Missing Required Field"
+    //     })
+    // }
+    // else {
+    //     try {
+    //         await connect(process.env.MONGO_URI)
+    //         res.json({
+    //             message: "DB Connected"
+    //         })
+    //     }
+    //     catch (error) {
+    //         res.status(400).json({
+    //             message: error.message
+    //         })
+    //     }
+    // }
+
+    try {
+        await connect(process.env.MONGO_URI)
+
+        const category = await Category.findOne({ _id })
+
+        res.json({ category })
+
+
+
     }
-    else {
-        try {
-            await connect(process.env.MONGO_URL)
-            res.json({
-                message: "DB Connected"
-            })
-        }
-        catch (error) {
-            res.status(400).json({
-                message: error.message
-            })
-        }
+    catch (error) {
+        res.status(400).json({
+            message: error.message
+        })
     }
 
 }
@@ -53,7 +70,7 @@ const createCategory = async (req, res) => {
     }
     else {
         try {
-            await connect(process.env.MONGO_URL)
+            await connect(process.env.MONGO_URI)
             const checkExisting = await Category.exists({ CategoryName })
 
             if (checkExisting) {
@@ -83,7 +100,22 @@ const createCategory = async (req, res) => {
 }
 
 const updateCategory = async (req, res) => {
+    const { _id, CategoryName, CategoryImage } = req.body
+    const filter = { _id };
+    const update = { CategoryName, CategoryImage };
     try {
+        await connect(process.env.MONGO_URI)
+        await Category.findOneAndUpdate(filter, update, {
+            new: true
+        })
+
+        const category = await Category.find()
+
+
+        res.json({
+            message: "Success",
+            category
+        })
 
     }
     catch (error) {
@@ -94,7 +126,21 @@ const updateCategory = async (req, res) => {
 }
 
 const deleteCategory = async (req, res) => {
+    const { _id } = req.body
+
     try {
+        await connect(process.env.MONGO_URI)
+
+        await Category.deleteOne({ _id })
+        const category = await Category.find()
+
+
+        res.status(200).json({
+            message: "Deleted Successfully",
+            category
+        })
+
+
 
     }
     catch (error) {
