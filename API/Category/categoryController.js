@@ -6,10 +6,11 @@ const getAllCategories = async (req, res) => {
     try {
         await connect(process.env.MONGO_URI)
 
-        const allCategories = await Category.find()
+        const categories = await Category.find()
 
         res.json({
-            category: allCategories
+            // category: allCategories
+            categories
         })
 
 
@@ -85,19 +86,21 @@ const createCategory = async (req, res) => {
 
             else {
                 await Category.create({ CategoryName, CategoryImage })
-                const allCategories = await Category.find()
+                const Categories = await Category.find()
 
                 res.json({
                     message: "DB Connected",
-                    category: allCategories
+                    Categories
                 })
-            }       }
+            }
+        }
         catch (error) {
             res.status(400).json({
                 message: error.message
             })
         }
-    }}
+    }
+}
 
 const updateCategory = async (req, res) => {
     const { _id, CategoryName, CategoryImage } = req.body
@@ -126,18 +129,18 @@ const updateCategory = async (req, res) => {
 }
 
 const deleteCategory = async (req, res) => {
-    const { _id } = req.body
+    const { CategoryName } = req.body
 
     try {
         await connect(process.env.MONGO_URI)
 
-        await Category.deleteOne({ _id })
-        const category = await Category.find()
+        await Category.deleteOne({ CategoryName: CategoryName })
+        const categories = await Category.find()
 
 
         res.status(200).json({
             message: "Deleted Successfully",
-            category
+            categories
         })
 
 
@@ -149,5 +152,33 @@ const deleteCategory = async (req, res) => {
         })
     }
 }
+// const { CategoryName } = req.body;
+
+// if (!CategoryName) {
+//     res.status(400).json({
+//         message: "Please give CategoryName"
+//     })  
+// }
+
+// else {
+//     try {
+//         await connect(process.env.MONGO_URI)
+//         await Category.deleteOne({ CategoryName: CategoryName })
+//         const categories = await Category.find()
+
+//         res.json({
+//             message: "Category Deleted Successfully",
+//             categories
+//         })
+
+//     }
+
+//     catch (error) {
+//         res.json({
+//             message: error.message
+//         })
+//     }
+// }
+// }
 
 module.exports = { getAllCategories, getCategorybyID, createCategory, updateCategory, deleteCategory }
